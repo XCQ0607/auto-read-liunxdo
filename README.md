@@ -2,14 +2,18 @@
 
 ## 使用方法一：油猴脚本
 
-油猴脚本代码在 index_passage_list 中，建议在使用前将浏览器页面缩小，这样子可以一次读更多的回复
-油猴：https://greasyfork.org/en/scripts/489464-auto-read
+油猴脚本代码在 index 开头的文件 中，建议在使用前将浏览器页面缩小，这样子可以一次滚动更多页面，读更多的回复
+油猴脚本安装地址：
 
-## 使用方法二：后台puppeteer运行（Windows默认有头，Linux默认无头）
+1. https://greasyfork.org/en/scripts/489464-auto-read 自动阅读随机点赞
+2. https://greasyfork.org/en/scripts/506371-auto-like-specific-user 基于搜索到的帖子自动点赞特定用户
+3. https://greasyfork.org/zh-CN/scripts/506567-auto-like-specific-user-base-on-activity 基于用户的活动自动点赞特定用户
+
+## 使用方法二：本地运行（Windows 默认有头浏览器，Linux 默认无头浏览器）
 
 ### 1.设置环境变量
 
-.env 里面设置用户名 密码
+.env 里面设置用户名 密码 以及其它 env 里面指明的信息
 
 ### 2.运行
 
@@ -17,7 +21,10 @@
 
 ```sh
 npm install
+# 自动阅读随机点赞
 node .\bypasscf.js
+# 自动点赞特定用户
+node .\bypasscf_likeUser.js
 ```
 
 #### Linux 额外安装以下包，运行命令相同
@@ -31,23 +38,23 @@ sudo snap install chromium
 
 ```
 
-使用方法 2.1：puppeteer 有头运行（有浏览器界面）
-
-在目录新建.env.local，添加 ENVIRONMENT=dev，就可以有头运行
-
 ```sh
 npm install
+# 自动阅读随机点赞
 node .\bypasscf.js
+# 自动点赞特定用户
+node .\bypasscf_likeUser.js
 ```
 
 ## 使用方法三：GitHub Action 每天 4 点阅读
-#### 每天运行，每次二十分钟(可自行修改启动时间和持续时间，代码.github\workflows\cron_bypassCF.yaml)
+
+#### 说明： 每天运行，每次二十分钟(可自行修改启动时间和持续时间，代码.github\workflows\cron_bypassCF.yaml 和 .github\workflows\cron_bypassCF_likeUser.yaml)
 
 ### 1. fork 仓库
 
 ### 2.设置环境变量
 
-在 GitHub action 的 secrets 设置用户名密码（变量名参考.env 中给出的），未设置则会使用.env文件中定义的
+在 GitHub action 的 secrets 设置用户名密码（变量名参考.env 中给出的），这里无法读取.env 变量
 ![alt text](image2.png)
 
 ### 3.启动 workflow
@@ -61,7 +68,10 @@ node .\bypasscf.js
 克隆仓库，在`docker-compose.yml`里面设置环境变量，然后运行
 
 ```sh
+# 自动阅读随机点赞
  docker-compose up -d
+ # 自动点赞特定用户
+ docker-compose -f docker-compose-like-user.yml up -d
 ```
 
 查看日志
@@ -88,7 +98,7 @@ crontab -e
 
 1. 修改 index_passage_list 中的// @match ，根据其它示例网站，填写新的 url，此外在脚本开头的 possibleBaseURLs 中也添加 url
 2. 服务器运行时，还需要修改.env 下的 WEBSITE 变量为对应的网址（如果网址是不存在原先脚本的，需要修改 external.js 中对应的部分，重新构建镜像）
-3. 小众软件论坛只能在Windows下运行，所以需要使用定制版action: [.github\workflows\windows_cron_bypassCF.yaml](https://github.com/14790897/auto-read-liunxdo/blob/main/.github/workflows/windows_cron_bypassCF.yaml)
+3. 小众软件论坛只能在 Windows 下运行，所以需要使用定制版 action: [.github\workflows\windows_cron_bypassCF.yaml](https://github.com/14790897/auto-read-liunxdo/blob/main/.github/workflows/windows_cron_bypassCF.yaml)
 
 #### 其它
 
@@ -106,14 +116,17 @@ external 是作为 puppeteer 的脚本使用的，由 index_passage_list.js 改�
 
 开发中遇到的问题：
 问：TimeoutError: Navigation timeout of 30000 ms exceeded 为什么 puppeteer 经常出现这个错误?
-答：linux 使用{waitUntil: 'domcontentloaded'}后，情况大大好转，但还是有时出现，Windows 未曾出现此问题
-[见文章分析](随笔.md)
+答：linux 使用{waitUntil: 'domcontentloaded'}后，情况大大好转，但还是有时出现，Windows 未曾出现此问题 [见文章分析](随笔.md)
+
+这个也可能是因为登陆太频繁导致的，太快的登陆太多的账号
+
+更少见的情况其实是密码错误
 
 #### 待做
 
 1. TimeoutError 时候可以捕获错误然后关掉当前浏览器重新再开一次
 
-<!-- 
+<!--
 代码：
 https://github.com/14790897/auto-read-liunxdo
 ## 手动运行
